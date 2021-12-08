@@ -1,0 +1,5 @@
+RoomID;CustomerName;CustomerSocialSecurityNumber;CustomerEmailAddress;CheckInDate;CheckOutDate
+1;Ali;12345;123454;2021-12-07;2021-12-09
+2;James;12345;54321;2021-12-21;2021-12-22
+3;Roberto;3567890;dffgjkkl@gmail.com;2021-12-14;2021-12-16
+4;Yasser;2345678;sdfghjk@gmail.com;2021-12-17;2022-01-04

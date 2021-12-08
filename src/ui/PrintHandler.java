@@ -18,7 +18,10 @@ public class PrintHandler implements PrintListener{
                 (4) print Luxury Rooms
                 (5) print Suite Rooms
                 (6) delete item (by name)
-                (7) save""");
+                (7) save
+                (8) book a room
+                (9) checkRoomAvailability""");
+
     }
 
     @Override

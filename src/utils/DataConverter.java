@@ -57,4 +57,19 @@ public class DataConverter {
         return result.toString();
     }
 
+    public String convertToString1(Reservation reservation) {
+        StringBuilder result = new StringBuilder();
+        String line = null;
+        if(reservation!=null) {
+            line = reservation.getRoom().getRoomID()+ ";" + reservation.getCustomer().getName() +
+                    ";" + reservation.getCustomer().getSocialSecurityId() +";"+
+                    reservation.getCustomer().getEmailAddress() + ";" +
+                    reservation.getCheckInDate() + ";" + reservation.getCheckOutDate() ;
+            if(line != null){
+                result.append("\n").append(line);
+            }
+        }
+        return result.toString();
+    }
+
 }
