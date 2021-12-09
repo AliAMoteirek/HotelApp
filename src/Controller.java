@@ -54,28 +54,21 @@ public class Controller implements EventHandler {
     }
 
     private boolean checkRoomAvailability(String roomNumber, LocalDate startDate, LocalDate endDate) {
-        boolean roomExists = false;
+        //boolean roomExists = false;
         List<String> text = fileManager.generateReservationData();
         //skip first line of csv (header)
         for (String line : text.stream().skip(1).collect(Collectors.toList())) {
             String[] reservationText = line.split(SPLIT_REGEX);
             if (reservationText[0].equalsIgnoreCase(roomNumber)) {
-                roomExists = true;
+                if (bookingIsBeforeExisting(reservationText[4], startDate, endDate) ||
+                        bookingIsAfterExisting(reservationText[5], startDate, endDate)) {
+                    return true;
+                }
+                else
+                    return false;
             }
         }
-        if (!roomExists) {
             return true;
-        }
-        //skip first line of csv (header)
-        for (String line : text.stream().skip(1).collect(Collectors.toList())) {
-            String[] reservationText = line.split(SPLIT_REGEX);
-            //Check if room exists in file. If not return true
-            if (bookingIsBeforeExisting(reservationText[4], startDate, endDate) ||
-                    bookingIsAfterExisting(reservationText[5], startDate, endDate)) {
-                return true;
-            }
-        }
-        return false;
     }
 
     private boolean bookingIsAfterExisting(String reservationText, LocalDate startDate, LocalDate endDate) {
