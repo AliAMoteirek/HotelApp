@@ -102,10 +102,6 @@ public class Controller implements EventHandler {
         return condition;
     }
 
-    private int amountToPay(int pricePerNight, LocalDate checkInDate, LocalDate checkoutDate) {
-        return (pricePerNight * Period.between(checkInDate, checkoutDate).getDays());
-    }
-
     private void bookARoom() {
         String roomNumber = controllerManager.readRoomNumber();
         Room room = rooms.stream().filter(item -> item.getRoomID().equals(roomNumber)).findAny().orElse(null);
@@ -120,11 +116,11 @@ public class Controller implements EventHandler {
                 Reservation reservation = new Reservation(
                         new Customer(name, socialSecurityNumber, emailAddress), room, checkInDate, checkOutDate);
                 fileManager.writeFile(dataConverter.convertToString1(reservation));
-                System.out.println("Room number " + roomNumber + " will cost " +
-                        amountToPay(room.getPrice(), checkInDate, checkOutDate) +
+                printListener.printMessage("Room number " + roomNumber + " will cost " +
+                        controllerManager.amountToPay(room.getPrice(), checkInDate, checkOutDate) +
                         "kr from " + checkInDate + " to " + checkOutDate);
             } else {
-                System.out.println("The room is occupied");
+                printListener.printMessage("The room is occupied");
             }
         }
     }
@@ -143,24 +139,9 @@ public class Controller implements EventHandler {
                     ";" + socialSecurityNumber + ";" +
                     emailAddress + ";" +
                     checkInDate + ";" + checkOutDate;
-            removeLine(line);
+            controllerManager.removeLine(line);
 
         }
-    }
-
-    public void removeLine(String lineContent) {
-        new Thread(() -> {
-            File file = new File("Reservation.csv");
-            List<String> out = null;
-            try {
-                out = Files.lines(file.toPath())
-                        .filter(line -> !line.contains(lineContent))
-                        .collect(Collectors.toList());
-                Files.write(file.toPath(), out, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }).start();
     }
 
     private void handleError() {
@@ -210,7 +191,6 @@ public class Controller implements EventHandler {
         }
     }
 
-
     private void printSuiteRooms() {
         List<RoomSuite> suiteRooms = roomManager.getSuiteRooms(rooms);
         for (RoomSuite item :
@@ -222,15 +202,6 @@ public class Controller implements EventHandler {
             );
         }
     }
-
-    private void saveRooms() {
-        if (DataManager.getInstance().getRooms() != null) {
-            fileManager.writeFile(dataConverter.convertToString(
-                    DataManager.getInstance().getRooms()
-            ));
-        }
-    }
-
 
     @Override
     public void readDataFromFile(List<String> result) {

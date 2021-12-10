@@ -1,5 +1,7 @@
 package ui;
 
+import java.util.Scanner;
+
 public class PrintHandler implements PrintListener{
 
     @Override
@@ -34,12 +36,12 @@ public class PrintHandler implements PrintListener{
     }
 
     @Override
-    public void promptForName() {
-        System.out.println("Please enter room name: ");
+    public void printGreetings() {
+        System.out.println("Hello!");
     }
 
     @Override
-    public void printGreetings() {
-        System.out.println("Hello!");
+    public void printMessage (String message) {
+        System.out.println(message);
     }
 }
