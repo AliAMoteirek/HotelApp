@@ -17,10 +17,9 @@ public class PrintHandler implements PrintListener{
                 (3) print Normal Double Rooms
                 (4) print Luxury Rooms
                 (5) print Suite Rooms
-                (6) delete item (by name)
-                (7) save
-                (8) book a room
-                (9) checkRoomAvailability""");
+                (6) book a room
+                (7) remove a reservation
+                """);
 
     }
 

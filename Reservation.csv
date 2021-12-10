@@ -1,5 +1,17 @@
+RoomID;CustomerName;CustomerSocialSecurityNumber;CustomerEmailAddress;CheckInDate;CheckOutDate
+01;Ali;123456;ali@gmail.com;2021-12-07;2021-12-09
+02;Frederico;734823;fed@gmail.com;2021-12-21;2021-12-22
+03;Roberto;356789;robe@gmail.com;2021-12-14;2021-12-16
+05;Ali;654234;al@gmail.com;2021-12-20;2021-12-25
+01;Moni;456789;moni@gmail.com;2021-12-10;2021-12-12
 
-2;Yasser;123456;sdfgh@gmail.com;2021-12-20;2022-01-04
-1;Ali;123456;asaddfg@gmail.com;2021-12-09;2021-12-11
-3;Roberto;¨;äå¨¨jk@gmail.com;2021-12-15;2021-12-18
-4;Frederico;12345;asdfg@gmail.com;2021-12-20;2021-12-23
+06;Lina;935848;lina@gmail.com;2021-12-20;2021-12-23
+01;Leo;875463;leo@gmail.com;2021-12-15;2021-12-19
+06;Sara;753723;sara@gmail.com;2021-12-14;2021-12-17
+
+07;Ramzy;328209;ramzy@gmail.com;2021-12-25;2022-01-10
+
+10;Yasser;843683;yass@gmail.com;2021-12-20;2022-01-10
+02;James;376482;james@gmail.com;2021-12-10;2021-12-20
+
+01;Cristian;734632;cristian@gmail.com;2021-12-20;2021-12-26
