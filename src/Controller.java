@@ -109,7 +109,7 @@ public class Controller implements EventHandler {
     private void bookARoom() {
         String roomNumber = controllerManager.readRoomNumber();
         Room room = rooms.stream().filter(item -> item.getRoomID().equals(roomNumber)).findAny().orElse(null);
-        room.getPrice() ;
+
         if (room != null) {
             LocalDate checkInDate = controllerManager.readCheckInDate();
             LocalDate checkOutDate = controllerManager.readCheckOutDate();
