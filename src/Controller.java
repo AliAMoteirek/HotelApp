@@ -4,10 +4,16 @@ import data.FileManager;
 import data.model.*;
 import ui.PrintHandler;
 import ui.PrintListener;
+import utils.ControllerManager;
 import utils.DataConverter;
 import utils.RoomManager;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.StandardOpenOption;
 import java.time.LocalDate;
+import java.time.Period;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -17,14 +23,15 @@ import static utils.Constants.SPLIT_REGEX;
 
 public class Controller implements EventHandler {
 
-    private final PrintListener printListener = new PrintHandler() ;
+    private final PrintListener printListener = new PrintHandler();
     private final RoomManager roomManager = new RoomManager();
     private final FileManager fileManager = new FileManager(this);
     private final DataConverter dataConverter = new DataConverter();
+    private ControllerManager controllerManager = new ControllerManager();
 
     private List<Room> rooms = new ArrayList<>();
 
-    public void start(){
+    public void start() {
         printListener.printGreetings();
         fileManager.readFile();
     }
@@ -45,95 +52,115 @@ public class Controller implements EventHandler {
             case 3 -> printNormalDoubleRooms();
             case 4 -> printLuxuryRooms();
             case 5 -> printSuiteRooms();
-            case 6 -> deleteBooking();
-            case 7 -> saveRooms();
-            case 8 -> bookARoom();
-            case 9 -> printAvailableRooms();
+            case 6 -> bookARoom();
+            case 7 -> removeReservation();
             default -> handleError();
         }
     }
 
     private boolean checkRoomAvailability(String roomNumber, LocalDate startDate, LocalDate endDate) {
-        //boolean roomExists = false;
+        boolean roomExists = false;
+        boolean condition = false;
         List<String> text = fileManager.generateReservationData();
-        //skip first line of csv (header)
+
         for (String line : text.stream().skip(1).collect(Collectors.toList())) {
             String[] reservationText = line.split(SPLIT_REGEX);
             if (reservationText[0].equalsIgnoreCase(roomNumber)) {
-                if (bookingIsBeforeExisting(reservationText[4], startDate, endDate) ||
-                        bookingIsAfterExisting(reservationText[5], startDate, endDate)) {
-                    return true;
-                }
-                else
-                    return false;
+                roomExists = true;
             }
         }
-            return true;
+        if (!roomExists) {
+            condition = true;
+        }
+
+        File file = new File("Reservation.csv");
+        List<String> out = null;
+        try {
+            out = Files.lines(file.toPath())
+                    .filter(line -> line.startsWith(roomNumber))
+                    .collect(Collectors.toList());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        if (out == null) {
+            condition = true;
+        } else {
+            for (String line : out.stream().collect(Collectors.toList())) {
+                String[] reservationText = line.split(SPLIT_REGEX);
+                if (controllerManager.bookingIsBeforeExisting(reservationText[4], startDate, endDate) ||
+                        controllerManager.bookingIsAfterExisting(reservationText[5], startDate, endDate)) {
+                    condition = true;
+                } else {
+                    condition = false;
+                }
+                if (condition == false) {
+                    break;
+                }
+            }
+        }
+        return condition;
     }
 
-    private boolean bookingIsAfterExisting(String reservationText, LocalDate startDate, LocalDate endDate) {
-        return startDate.isAfter(LocalDate.parse(reservationText)) && endDate.isAfter(LocalDate.parse(reservationText));
-    }
-
-    private boolean bookingIsBeforeExisting(String reservationText, LocalDate startDate, LocalDate endDate) {
-        return startDate.isBefore(LocalDate.parse(reservationText)) && endDate.isBefore(LocalDate.parse(reservationText));
+    private int amountToPay(int pricePerNight, LocalDate checkInDate, LocalDate checkoutDate) {
+        return (pricePerNight * Period.between(checkInDate, checkoutDate).getDays());
     }
 
     private void bookARoom() {
-        System.out.println("Please enter room number:");
-        Scanner scan = new Scanner(System.in);
-        String roomNumber = scan.next().trim();
+        String roomNumber = controllerManager.readRoomNumber();
         Room room = rooms.stream().filter(item -> item.getRoomID().equals(roomNumber)).findAny().orElse(null);
+        room.getPrice() ;
         if (room != null) {
-            System.out.println("Please enter your name:");
-            String name = scan.next().trim();
-            System.out.println("Please enter your social security number:");
-            String socialSecurityNumber = scan.next().trim();
-            System.out.println("Please enter your email address:");
-            String emailAddress = scan.next().trim();
-            System.out.println("Please enter your check in date:");
-            String checkInDate = scan.next().trim();
-            LocalDate localDate = LocalDate.parse(checkInDate);
-            System.out.println("Please enter your check out date:");
-            String checkOut = scan.next().trim();
-            LocalDate checkOutDate = LocalDate.parse(checkOut);
-            Reservation reservation = new Reservation(
-                    new Customer(name, socialSecurityNumber, emailAddress), room, localDate, checkOutDate);
-            fileManager.writeFile(dataConverter.convertToString1(reservation));
+            LocalDate checkInDate = controllerManager.readCheckInDate();
+            LocalDate checkOutDate = controllerManager.readCheckOutDate();
+            if (checkRoomAvailability(roomNumber, checkInDate, checkOutDate)) {
+                String name = controllerManager.readCustomerName();
+                String socialSecurityNumber = controllerManager.readCustomerSocialSecurityNumber();
+                String emailAddress = controllerManager.readCustomerEmailAdress();
+                Reservation reservation = new Reservation(
+                        new Customer(name, socialSecurityNumber, emailAddress), room, checkInDate, checkOutDate);
+                fileManager.writeFile(dataConverter.convertToString1(reservation));
+                System.out.println("Room number " + roomNumber + " will cost " +
+                        amountToPay(room.getPrice(), checkInDate, checkOutDate) +
+                        "kr from " + checkInDate + " to " + checkOutDate);
+            } else {
+                System.out.println("The room is occupied");
+            }
         }
     }
 
-    private void printAvailableRooms() {
-        System.out.println("Please enter room number:");
-        Scanner scan = new Scanner(System.in);
-        String roomNumber = scan.next().trim();
+    private void removeReservation() {
+        String roomNumber = controllerManager.readRoomNumber();
         Room room = rooms.stream().filter(item -> item.getRoomID().equals(roomNumber)).findAny().orElse(null);
         if (room != null) {
-            System.out.println("Please enter your check in date:");
-            String checkInDate = scan.next().trim();
-            LocalDate localDate = LocalDate.parse(checkInDate);
-            System.out.println("Please enter your check out date:");
-            String checkOut = scan.next().trim();
-            LocalDate checkOutDate = LocalDate.parse(checkOut);
-            System.out.println(checkRoomAvailability(roomNumber, localDate, checkOutDate));
+            LocalDate checkInDate = controllerManager.readCheckInDate();
+            LocalDate checkOutDate = controllerManager.readCheckOutDate();
+
+            String name = controllerManager.readCustomerName();
+            String socialSecurityNumber = controllerManager.readCustomerSocialSecurityNumber();
+            String emailAddress = controllerManager.readCustomerEmailAdress();
+            String line = roomNumber + ";" + name +
+                    ";" + socialSecurityNumber + ";" +
+                    emailAddress + ";" +
+                    checkInDate + ";" + checkOutDate;
+            removeLine(line);
+
         }
     }
 
-
-    // need to change from room to booking
-    private void deleteBooking() {
-        printListener.promptForName();
-        Scanner input = new Scanner(System.in);
-        String name = input.nextLine();
-        Room room = rooms.stream()
-                .filter(item -> item.getRoomID().equals(name))
-                .findFirst().orElse(null);
-        if(room != null){
-            rooms.remove(room);
-            printListener.printDone();
-        } else {
-            printListener.printError();
-        }
+    public void removeLine(String lineContent) {
+        new Thread(() -> {
+            File file = new File("Reservation.csv");
+            List<String> out = null;
+            try {
+                out = Files.lines(file.toPath())
+                        .filter(line -> !line.contains(lineContent))
+                        .collect(Collectors.toList());
+                Files.write(file.toPath(), out, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }).start();
     }
 
     private void handleError() {
