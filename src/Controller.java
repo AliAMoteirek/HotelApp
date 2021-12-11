@@ -7,6 +7,10 @@ import ui.PrintListener;
 import utils.DataConverter;
 import utils.RoomManager;
 
+import javax.imageio.ImageIO;
+import javax.swing.*;
+import java.awt.*;
+import java.io.InputStream;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -17,14 +21,14 @@ import static utils.Constants.SPLIT_REGEX;
 
 public class Controller implements EventHandler {
 
-    private final PrintListener printListener = new PrintHandler() ;
+    private final PrintListener printListener = new PrintHandler();
     private final RoomManager roomManager = new RoomManager();
     private final FileManager fileManager = new FileManager(this);
     private final DataConverter dataConverter = new DataConverter();
 
     private List<Room> rooms = new ArrayList<>();
 
-    public void start(){
+    public void start() {
         printListener.printGreetings();
         fileManager.readFile();
     }
@@ -45,16 +49,16 @@ public class Controller implements EventHandler {
             case 3 -> printNormalDoubleRooms();
             case 4 -> printLuxuryRooms();
             case 5 -> printSuiteRooms();
-            case 6 -> deleteBooking();
-            case 7 -> saveRooms();
+            case 6 -> findUs();
+            case 7 -> getInfo();
             case 8 -> bookARoom();
             case 9 -> printAvailableRooms();
             default -> handleError();
         }
     }
 
+
     private boolean checkRoomAvailability(String roomNumber, LocalDate startDate, LocalDate endDate) {
-        //boolean roomExists = false;
         List<String> text = fileManager.generateReservationData();
         //skip first line of csv (header)
         for (String line : text.stream().skip(1).collect(Collectors.toList())) {
@@ -63,12 +67,11 @@ public class Controller implements EventHandler {
                 if (bookingIsBeforeExisting(reservationText[4], startDate, endDate) ||
                         bookingIsAfterExisting(reservationText[5], startDate, endDate)) {
                     return true;
-                }
-                else
+                } else
                     return false;
             }
         }
-            return true;
+        return true;
     }
 
     private boolean bookingIsAfterExisting(String reservationText, LocalDate startDate, LocalDate endDate) {
@@ -128,7 +131,7 @@ public class Controller implements EventHandler {
         Room room = rooms.stream()
                 .filter(item -> item.getRoomID().equals(name))
                 .findFirst().orElse(null);
-        if(room != null){
+        if (room != null) {
             rooms.remove(room);
             printListener.printDone();
         } else {
@@ -196,12 +199,33 @@ public class Controller implements EventHandler {
         }
     }
 
-    private void saveRooms() {
-        if (DataManager.getInstance().getRooms() != null) {
-            fileManager.writeFile(dataConverter.convertToString(
-                    DataManager.getInstance().getRooms()
-            ));
+    public void findUs(){
+    EventQueue.invokeLater(new Runnable() {
+        @Override
+        public void run () {
+            try {
+                UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+            } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException ex) {
+            }
+
+            ImageIcon icon = new ImageIcon(Controller.class.getResource("/Hotelmap.png"));
+            JOptionPane.showMessageDialog(
+                    null,
+                    "",
+                    "Hotell - By the sea", JOptionPane.INFORMATION_MESSAGE,
+                    icon);
         }
+    });
+}
+
+
+    private void getInfo() {
+        System.out.println("\"Hotell By the Sea\"\n" +
+                "Lindgatan 120\n" +
+                "13024 - Stockholm\n\n" +
+                "Tel. 08-2344490\n" +
+                "info@bytheseahotell.se");
+
     }
 
 
