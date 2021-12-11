@@ -1,3 +1,5 @@
+import Payment.CreditCard;
+import Payment.Swish;
 import data.DataManager;
 import data.EventHandler;
 import data.FileManager;
@@ -11,9 +13,7 @@ import utils.RoomManager;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.StandardOpenOption;
 import java.time.LocalDate;
-import java.time.Period;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -109,16 +109,34 @@ public class Controller implements EventHandler {
         if (room != null) {
             LocalDate checkInDate = controllerManager.readCheckInDate();
             LocalDate checkOutDate = controllerManager.readCheckOutDate();
+
             if (checkRoomAvailability(roomNumber, checkInDate, checkOutDate)) {
                 String name = controllerManager.readCustomerName();
                 String socialSecurityNumber = controllerManager.readCustomerSocialSecurityNumber();
                 String emailAddress = controllerManager.readCustomerEmailAdress();
+
                 Reservation reservation = new Reservation(
                         new Customer(name, socialSecurityNumber, emailAddress), room, checkInDate, checkOutDate);
-                fileManager.writeFile(dataConverter.convertToString1(reservation));
+
+                int amountToPay = controllerManager.amountToPay(room.getPrice(), checkInDate, checkOutDate);
                 printListener.printMessage("Room number " + roomNumber + " will cost " +
-                        controllerManager.amountToPay(room.getPrice(), checkInDate, checkOutDate) +
-                        "kr from " + checkInDate + " to " + checkOutDate);
+                        amountToPay + "kr from " + checkInDate + " to " + checkOutDate);
+
+                printListener.printPaymentOptions();
+                Scanner input = new Scanner(System.in);
+                int option = input.nextInt();
+                switch (option) {
+                    case 1 -> {
+                        String creditCard = controllerManager.readCreditCard();
+                        controllerManager.pay(new CreditCard(name, creditCard), amountToPay);
+                    }
+                    case 2 -> {
+                        String phoneNumber = controllerManager.readSwish();
+                        controllerManager.pay(new Swish(name, phoneNumber), amountToPay);
+                    }
+                    default -> printListener.printMessage("The payment will be done at the hotel");
+                }
+                fileManager.writeFile(dataConverter.convertToString1(reservation));
             } else {
                 printListener.printMessage("The room is occupied");
             }
@@ -140,7 +158,6 @@ public class Controller implements EventHandler {
                     emailAddress + ";" +
                     checkInDate + ";" + checkOutDate;
             controllerManager.removeLine(line);
-
         }
     }
 

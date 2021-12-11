@@ -15,4 +15,15 @@ RoomID;CustomerName;CustomerSocialSecurityNumber;CustomerEmailAddress;CheckInDat
 02;James;376482;james@gmail.com;2021-12-10;2021-12-20
 
 01;Cristian;734632;cristian@gmail.com;2021-12-20;2021-12-26
-02;Lara;836382;lara@gmail.com;2022-01-10;2022-01-25
+
+
+02;Lara;837423;lara@gmail.com;2022-01-20;2022-02-10
+02;Anthony;837465;anthony@gmail.com;2022-01-05;2022-01-10
+03;Bruno;654392;bruno@gmail.com;2021-12-18;2021-12-30
+
+08;Hadi;845732;hadi@gmail.com;2021-12-20;2021-12-25
+08;Carmelo;764592;carmelo@gmail.com;2021-12-15;2021-12-19
+
+09;Erik;983485;erik@gmail.com;2021-12-11;2021-12-16
+09;Jason;873465;jason@gmail.com;2021-12-17;2021-12-25
+09;Ana;876456;ana@gmail.com;2021-12-26;2021-12-27

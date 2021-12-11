@@ -1,5 +1,6 @@
 package utils;
 
+import Payment.Payment;
 import ui.PrintHandler;
 import ui.PrintListener;
 
@@ -25,7 +26,6 @@ public class ControllerManager {
     public boolean bookingIsBeforeExisting(String reservationText, LocalDate startDate, LocalDate endDate) {
         return startDate.isBefore(LocalDate.parse(reservationText)) && endDate.isBefore(LocalDate.parse(reservationText));
     }
-
 
     public String readCustomerName() {
         printListener.printMessage("Please enter your name");
@@ -78,6 +78,20 @@ public class ControllerManager {
 
     public int amountToPay(int pricePerNight, LocalDate checkInDate, LocalDate checkoutDate) {
         return (pricePerNight * Period.between(checkInDate, checkoutDate).getDays());
+    }
+
+    public void pay(Payment paymentStrategy, int amountToPay) {
+        paymentStrategy.pay(amountToPay);
+    }
+
+    public String readCreditCard() {
+        printListener.printMessage("Please enter your credit card number");
+        return scan.next().trim();
+    }
+
+    public String readSwish() {
+        printListener.printMessage("Please enter your phone number");
+        return scan.next().trim();
     }
 
 }

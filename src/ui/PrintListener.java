@@ -4,6 +4,8 @@ public interface PrintListener {
 
     void printRoomList(String roomID, String price, String roomType);
 
+    void printPaymentOptions() ;
+
     void printOptions();
 
     void printDone();

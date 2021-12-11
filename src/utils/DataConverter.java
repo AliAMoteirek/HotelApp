@@ -37,26 +37,6 @@ public class DataConverter {
         return rooms;
     }
 
-    public String convertToString(List<Room> rooms) {
-        StringBuilder result = new StringBuilder(CSV_HEADER);
-        String line = null;
-        for (Room room :
-                rooms) {
-            if (room instanceof RoomNormalSingle) {
-                line = room.getRoomID() + "," + room.getPrice() + ";" +
-                        ((RoomNormalSingle) room).getPrice() + ";" + ROOM_TYPE_NORMAL_SINGLE;
-            }
-            if (room instanceof RoomNormalDouble) {
-                line = room.getRoomID() + "," + room.getPrice() + ";" +
-                        ((RoomNormalDouble) room).getPrice() + ";" + ROOM_TYPE_NORMAL_DOUBLE;
-            }
-            if(line != null){
-                result.append("\n").append(line);
-            }
-        }
-        return result.toString();
-    }
-
     public String convertToString1(Reservation reservation) {
         StringBuilder result = new StringBuilder();
         String line = null;

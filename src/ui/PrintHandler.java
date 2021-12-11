@@ -1,7 +1,5 @@
 package ui;
 
-import java.util.Scanner;
-
 public class PrintHandler implements PrintListener{
 
     @Override
@@ -20,9 +18,16 @@ public class PrintHandler implements PrintListener{
                 (4) print Luxury Rooms
                 (5) print Suite Rooms
                 (6) book a room
-                (7) remove a reservation
-                """);
+                (7) remove a reservation""");
+    }
 
+    @Override
+    public void printPaymentOptions() {
+        System.out.println("""
+                choose an option:
+                (1) pay by card
+                (2) pay by swish
+                If no option is chosen the payment will be done at the hotel""");
     }
 
     @Override
