@@ -53,7 +53,9 @@ public class Controller implements EventHandler {
 
     private void bookARoom() {
         String roomNumber = controllerManager.readRoomNumber();
-        Room room = rooms.stream().filter(item -> item.getRoomID().equals(roomNumber)).findAny().orElse(null);
+        Room room = rooms.stream().
+                filter(item -> item.getRoomID().
+                equals(roomNumber)).findAny().orElse(null);
         List<String> text = fileManager.generateReservationData();
 
         if (room != null) {
@@ -70,8 +72,7 @@ public class Controller implements EventHandler {
                         new Customer(name, socialSecurityNumber, emailAddress), room, checkInDate, checkOutDate);
 
                 int amountToPay = controllerManager.amountToPay(room.getPrice(), checkInDate, checkOutDate);
-                printListener.printMessage("Room number " + roomNumber + " will cost " +
-                        amountToPay + "kr from " + checkInDate + " to " + checkOutDate);
+                printListener.printAmountToPay(roomNumber, amountToPay ,checkInDate, checkOutDate);
 
                 controllerManager.paymentOption(name, amountToPay);
                 fileManager.writeFile(dataConverter.convertToString(reservation));

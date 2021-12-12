@@ -1,10 +1,18 @@
 package ui;
 
+import java.time.LocalDate;
+
 public class PrintHandler implements PrintListener{
 
     @Override
     public void printRoomList(String roomID, String price, String roomType) {
         System.out.println(roomID + " is a " + roomType + " room - " + price + " kr.");
+    }
+
+    @Override
+    public void printAmountToPay(String roomNumber, int amountToPay, LocalDate checkInDate, LocalDate checkOutDate) {
+        System.out.println("Room number " + roomNumber + " will cost " +
+                amountToPay + "kr from " + checkInDate + " to " + checkOutDate);
     }
 
     @Override
@@ -24,7 +32,7 @@ public class PrintHandler implements PrintListener{
     @Override
     public void printPaymentOptions() {
         System.out.println("""
-                choose an option:
+                choose a payment option:
                 (1) pay by card
                 (2) pay by swish
                 If no option is chosen the payment will be done at the hotel""");
