@@ -44,19 +44,19 @@ public class ControllerManager {
     }
 
     public LocalDate readCheckInDate() {
-        try{
+        try {
             printListener.printMessage("Please enter your check in date");
             String checkIn = scan.next().trim();
             return LocalDate.parse(checkIn);
         } catch (Exception e) {
             printListener.printMessage("Invalid date");
             System.exit(0);
-            return null ;
+            return null;
         }
     }
 
     public LocalDate readCheckOutDate() {
-        try{
+        try {
             printListener.printMessage("Please enter your check out date");
             String checkOut = scan.next().trim();
             return LocalDate.parse(checkOut);
@@ -127,22 +127,11 @@ public class ControllerManager {
     public boolean bookingIsBeforeExisting(String reservationText, LocalDate startDate, LocalDate endDate) {
         return startDate.isBefore(LocalDate.parse(reservationText)) &&
                 (endDate.isBefore(LocalDate.parse(reservationText)) ||
-                 endDate.isEqual(LocalDate.parse(reservationText)));
+                        endDate.isEqual(LocalDate.parse(reservationText)));
     }
 
     public boolean checkRoomAvailability(String roomNumber, LocalDate startDate, LocalDate endDate, List<String> text) {
-        boolean roomExists = false;
         boolean condition = false;
-
-        for (String line : text.stream().skip(1).collect(Collectors.toList())) {
-            String[] reservationText = line.split(SPLIT_REGEX);
-            if (reservationText[0].equalsIgnoreCase(roomNumber)) {
-                roomExists = true;
-            }
-        }
-        if (!roomExists) {
-            condition = true;
-        }
 
         File file = new File("Reservation.csv");
         List<String> out = null;
@@ -154,7 +143,7 @@ public class ControllerManager {
             e.printStackTrace();
         }
 
-        if (out == null) {
+        if (out.isEmpty()) {
             condition = true;
         } else {
             for (String line : out.stream().collect(Collectors.toList())) {
