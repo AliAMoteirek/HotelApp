@@ -1,14 +1,13 @@
 package data.model;
 
 import java.time.LocalDate;
-import java.util.Calendar;
 
 public class Reservation {
 
-    Customer customer ;
-    Room room ;
-    LocalDate checkInDate ;
-    LocalDate checkOutDate ;
+    private Customer customer ;
+    private Room room ;
+    private LocalDate checkInDate ;
+    private LocalDate checkOutDate ;
 
     public Reservation(Customer customer, Room room, LocalDate checkInDate, LocalDate checkOutDate) {
         this.customer = customer;

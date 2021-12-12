@@ -2,8 +2,8 @@ package data.model;
 
 public abstract class Room {
 
-    protected String roomID ;
-    protected int price ;
+    private String roomID ;
+    private int price ;
 
     public Room(String roomID, int price) {
         this.roomID = roomID;

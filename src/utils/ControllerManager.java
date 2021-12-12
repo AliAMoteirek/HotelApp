@@ -1,6 +1,8 @@
 package utils;
 
 import Payment.Payment;
+import Payment.CreditCard;
+import Payment.Swish;
 import ui.PrintHandler;
 import ui.PrintListener;
 
@@ -14,18 +16,12 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.stream.Collectors;
 
+import static utils.Constants.SPLIT_REGEX;
+
 public class ControllerManager {
 
     private Scanner scan = new Scanner(System.in);
     private PrintListener printListener = new PrintHandler();
-
-    public boolean bookingIsAfterExisting(String reservationText, LocalDate startDate, LocalDate endDate) {
-        return startDate.isAfter(LocalDate.parse(reservationText)) && endDate.isAfter(LocalDate.parse(reservationText));
-    }
-
-    public boolean bookingIsBeforeExisting(String reservationText, LocalDate startDate, LocalDate endDate) {
-        return startDate.isBefore(LocalDate.parse(reservationText)) && endDate.isBefore(LocalDate.parse(reservationText));
-    }
 
     public String readCustomerName() {
         printListener.printMessage("Please enter your name");
@@ -48,17 +44,28 @@ public class ControllerManager {
     }
 
     public LocalDate readCheckInDate() {
-        printListener.printMessage("Please enter your check in date");
-        String checkIn = scan.next().trim();
-        return LocalDate.parse(checkIn);
+        try{
+            printListener.printMessage("Please enter your check in date");
+            String checkIn = scan.next().trim();
+            return LocalDate.parse(checkIn);
+        } catch (Exception e) {
+            printListener.printMessage("Invalid date");
+            System.exit(0);
+            return null ;
+        }
     }
 
     public LocalDate readCheckOutDate() {
-        printListener.printMessage("Please enter your check out date");
-        String checkOut = scan.next().trim();
-        return LocalDate.parse(checkOut);
+        try{
+            printListener.printMessage("Please enter your check out date");
+            String checkOut = scan.next().trim();
+            return LocalDate.parse(checkOut);
+        } catch (Exception e) {
+            printListener.printMessage("Invalid date");
+            System.exit(0);
+            return null;
+        }
     }
-
 
     public void removeLine(String lineContent) {
         new Thread(() -> {
@@ -94,4 +101,75 @@ public class ControllerManager {
         return scan.next().trim();
     }
 
+    public void paymentOption(String name, int amountToPay) {
+        printListener.printPaymentOptions();
+        Scanner input = new Scanner(System.in);
+        int option = input.nextInt();
+        switch (option) {
+            case 1 -> {
+                String creditCard = readCreditCard();
+                pay(new CreditCard(name, creditCard), amountToPay);
+            }
+            case 2 -> {
+                String phoneNumber = readSwish();
+                pay(new Swish(name, phoneNumber), amountToPay);
+            }
+            default -> printListener.printMessage("The payment will be done at the hotel");
+        }
+    }
+
+    public boolean bookingIsAfterExisting(String reservationText, LocalDate startDate, LocalDate endDate) {
+        return (startDate.isAfter(LocalDate.parse(reservationText)) ||
+                startDate.isEqual(LocalDate.parse(reservationText))) &&
+                endDate.isAfter(LocalDate.parse(reservationText));
+    }
+
+    public boolean bookingIsBeforeExisting(String reservationText, LocalDate startDate, LocalDate endDate) {
+        return startDate.isBefore(LocalDate.parse(reservationText)) &&
+                (endDate.isBefore(LocalDate.parse(reservationText)) ||
+                 endDate.isEqual(LocalDate.parse(reservationText)));
+    }
+
+    public boolean checkRoomAvailability(String roomNumber, LocalDate startDate, LocalDate endDate, List<String> text) {
+        boolean roomExists = false;
+        boolean condition = false;
+
+        for (String line : text.stream().skip(1).collect(Collectors.toList())) {
+            String[] reservationText = line.split(SPLIT_REGEX);
+            if (reservationText[0].equalsIgnoreCase(roomNumber)) {
+                roomExists = true;
+            }
+        }
+        if (!roomExists) {
+            condition = true;
+        }
+
+        File file = new File("Reservation.csv");
+        List<String> out = null;
+        try {
+            out = Files.lines(file.toPath())
+                    .filter(line -> line.startsWith(roomNumber))
+                    .collect(Collectors.toList());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        if (out == null) {
+            condition = true;
+        } else {
+            for (String line : out.stream().collect(Collectors.toList())) {
+                String[] reservationText = line.split(SPLIT_REGEX);
+                if (bookingIsBeforeExisting(reservationText[4], startDate, endDate) ||
+                        bookingIsAfterExisting(reservationText[5], startDate, endDate)) {
+                    condition = true;
+                } else {
+                    condition = false;
+                }
+                if (condition == false) {
+                    break;
+                }
+            }
+        }
+        return condition;
+    }
 }

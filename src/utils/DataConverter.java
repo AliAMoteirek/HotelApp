@@ -37,7 +37,7 @@ public class DataConverter {
         return rooms;
     }
 
-    public String convertToString1(Reservation reservation) {
+    public String convertToString(Reservation reservation) {
         StringBuilder result = new StringBuilder();
         String line = null;
         if(reservation!=null) {
