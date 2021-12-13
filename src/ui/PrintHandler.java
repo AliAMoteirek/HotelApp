@@ -50,10 +50,6 @@ public class PrintHandler implements PrintListener{
         System.out.println("Something went wrong!");
     }
 
-    @Override
-    public void promptForName() {
-        System.out.println("Please enter room name: ");
-    }
 
     @Override
     public void printGreetings() {

@@ -4,13 +4,12 @@ import data.FileManager;
 import data.model.*;
 import ui.PrintHandler;
 import ui.PrintListener;
+import utils.ControllerManager;
 import utils.DataConverter;
 import utils.RoomManager;
 
-import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
-import java.io.InputStream;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
