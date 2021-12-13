@@ -66,8 +66,9 @@ public class FileManager {
     //method that writes data to a file
     private void writeDataToFile(String text) {
         try (BufferedWriter bufferedWriter =
-                     new BufferedWriter(new FileWriter(fileNameWrite))) {
+                     new BufferedWriter(new FileWriter(fileNameWrite, true))) {
             bufferedWriter.write(text);
+            bufferedWriter.flush();
         } catch (IOException e) {
             System.out.println("Exception while writing in the file was thrown");
             System.out.println(e.getMessage());

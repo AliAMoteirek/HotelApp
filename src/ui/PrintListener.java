@@ -1,10 +1,14 @@
 package ui;
 
+import java.time.LocalDate;
+
 public interface PrintListener {
 
     void printRoomList(String roomID, String price, String roomType);
 
-    /*void printItem(String name, String price);*/
+    void printAmountToPay(String roomNumber, int amountToPay, LocalDate checkInDate, LocalDate checkOutDate);
+
+    void printPaymentOptions();
 
     void printOptions();
 
@@ -12,7 +16,7 @@ public interface PrintListener {
 
     void printError();
 
-    void promptForName();
+    void printMessage(String message);
 
     void printGreetings();
 

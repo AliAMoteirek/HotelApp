@@ -25,6 +25,7 @@ public class Controller implements EventHandler {
     private final RoomManager roomManager = new RoomManager();
     private final FileManager fileManager = new FileManager(this);
     private final DataConverter dataConverter = new DataConverter();
+    private ControllerManager controllerManager = new ControllerManager();
 
     private List<Room> rooms = new ArrayList<>();
 
@@ -49,16 +50,16 @@ public class Controller implements EventHandler {
             case 3 -> printNormalDoubleRooms();
             case 4 -> printLuxuryRooms();
             case 5 -> printSuiteRooms();
-            case 6 -> findUs();
-            case 7 -> getInfo();
-            case 8 -> bookARoom();
-            case 9 -> printAvailableRooms();
+            case 6 -> bookARoom();
+            case 7 -> removeReservation();
+            case 8 -> findUs();
+            case 9 -> getInfo();
             default -> handleError();
         }
     }
 
-
     private boolean checkRoomAvailability(String roomNumber, LocalDate startDate, LocalDate endDate) {
+        //boolean roomExists = false;
         List<String> text = fileManager.generateReservationData();
         //skip first line of csv (header)
         for (String line : text.stream().skip(1).collect(Collectors.toList())) {
@@ -67,11 +68,12 @@ public class Controller implements EventHandler {
                 if (bookingIsBeforeExisting(reservationText[4], startDate, endDate) ||
                         bookingIsAfterExisting(reservationText[5], startDate, endDate)) {
                     return true;
-                } else
+                }
+                else
                     return false;
             }
         }
-        return true;
+            return true;
     }
 
     private boolean bookingIsAfterExisting(String reservationText, LocalDate startDate, LocalDate endDate) {
@@ -83,59 +85,50 @@ public class Controller implements EventHandler {
     }
 
     private void bookARoom() {
-        System.out.println("Please enter room number:");
-        Scanner scan = new Scanner(System.in);
-        String roomNumber = scan.next().trim();
-        Room room = rooms.stream().filter(item -> item.getRoomID().equals(roomNumber)).findAny().orElse(null);
+        String roomNumber = controllerManager.readRoomNumber();
+        Room room = rooms.stream().
+                filter(item -> item.getRoomID().
+                equals(roomNumber)).findAny().orElse(null);
+
         if (room != null) {
-            System.out.println("Please enter your name:");
-            String name = scan.next().trim();
-            System.out.println("Please enter your social security number:");
-            String socialSecurityNumber = scan.next().trim();
-            System.out.println("Please enter your email address:");
-            String emailAddress = scan.next().trim();
-            System.out.println("Please enter your check in date:");
-            String checkInDate = scan.next().trim();
-            LocalDate localDate = LocalDate.parse(checkInDate);
-            System.out.println("Please enter your check out date:");
-            String checkOut = scan.next().trim();
-            LocalDate checkOutDate = LocalDate.parse(checkOut);
-            Reservation reservation = new Reservation(
-                    new Customer(name, socialSecurityNumber, emailAddress), room, localDate, checkOutDate);
-            fileManager.writeFile(dataConverter.convertToString1(reservation));
+            LocalDate checkInDate = controllerManager.readCheckInDate();
+            LocalDate checkOutDate = controllerManager.readCheckOutDate();
+
+            if (controllerManager.
+                    checkRoomAvailability(roomNumber, checkInDate, checkOutDate)) {
+                String name = controllerManager.readCustomerName();
+                String socialSecurityNumber = controllerManager.readCustomerSocialSecurityNumber();
+                String emailAddress = controllerManager.readCustomerEmailAdress();
+
+                Reservation reservation = new Reservation(
+                        new Customer(name, socialSecurityNumber, emailAddress), room, checkInDate, checkOutDate);
+
+                int amountToPay = controllerManager.amountToPay(room.getPrice(), checkInDate, checkOutDate);
+                printListener.printAmountToPay(roomNumber, amountToPay ,checkInDate, checkOutDate);
+
+                controllerManager.paymentOption(name, amountToPay);
+                fileManager.writeFile(dataConverter.convertToString(reservation));
+            } else {
+                printListener.printMessage("The room is occupied");
+            }
         }
     }
 
-    private void printAvailableRooms() {
-        System.out.println("Please enter room number:");
-        Scanner scan = new Scanner(System.in);
-        String roomNumber = scan.next().trim();
+    private void removeReservation() {
+        String roomNumber = controllerManager.readRoomNumber();
         Room room = rooms.stream().filter(item -> item.getRoomID().equals(roomNumber)).findAny().orElse(null);
         if (room != null) {
-            System.out.println("Please enter your check in date:");
-            String checkInDate = scan.next().trim();
-            LocalDate localDate = LocalDate.parse(checkInDate);
-            System.out.println("Please enter your check out date:");
-            String checkOut = scan.next().trim();
-            LocalDate checkOutDate = LocalDate.parse(checkOut);
-            System.out.println(checkRoomAvailability(roomNumber, localDate, checkOutDate));
-        }
-    }
+            LocalDate checkInDate = controllerManager.readCheckInDate();
+            LocalDate checkOutDate = controllerManager.readCheckOutDate();
 
-
-    // need to change from room to booking
-    private void deleteBooking() {
-        printListener.promptForName();
-        Scanner input = new Scanner(System.in);
-        String name = input.nextLine();
-        Room room = rooms.stream()
-                .filter(item -> item.getRoomID().equals(name))
-                .findFirst().orElse(null);
-        if (room != null) {
-            rooms.remove(room);
-            printListener.printDone();
-        } else {
-            printListener.printError();
+            String name = controllerManager.readCustomerName();
+            String socialSecurityNumber = controllerManager.readCustomerSocialSecurityNumber();
+            String emailAddress = controllerManager.readCustomerEmailAdress();
+            String line = roomNumber + ";" + name +
+                    ";" + socialSecurityNumber + ";" +
+                    emailAddress + ";" +
+                    checkInDate + ";" + checkOutDate;
+            controllerManager.removeLine(line);
         }
     }
 
