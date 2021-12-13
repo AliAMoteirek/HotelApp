@@ -130,7 +130,7 @@ public class ControllerManager {
                         endDate.isEqual(LocalDate.parse(reservationText)));
     }
 
-    public boolean checkRoomAvailability(String roomNumber, LocalDate startDate, LocalDate endDate, List<String> text) {
+    public boolean checkRoomAvailability(String roomNumber, LocalDate startDate, LocalDate endDate) {
         boolean condition = false;
 
         File file = new File("Reservation.csv");

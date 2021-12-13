@@ -56,14 +56,13 @@ public class Controller implements EventHandler {
         Room room = rooms.stream().
                 filter(item -> item.getRoomID().
                 equals(roomNumber)).findAny().orElse(null);
-        List<String> text = fileManager.generateReservationData();
 
         if (room != null) {
             LocalDate checkInDate = controllerManager.readCheckInDate();
             LocalDate checkOutDate = controllerManager.readCheckOutDate();
 
             if (controllerManager.
-                    checkRoomAvailability(roomNumber, checkInDate, checkOutDate,text)) {
+                    checkRoomAvailability(roomNumber, checkInDate, checkOutDate)) {
                 String name = controllerManager.readCustomerName();
                 String socialSecurityNumber = controllerManager.readCustomerSocialSecurityNumber();
                 String emailAddress = controllerManager.readCustomerEmailAdress();
